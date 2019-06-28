@@ -1,0 +1,217 @@
+body {
+    margin: 50px 0 0 0;
+    padding: 0;
+    width: 100%;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align: center;
+    color: #aaa;
+    font-size: 18px;
+}
+
+h1 {
+    letter-spacing: -3px;
+    font-family: 'Lato', sans-serif;
+    font-size: 100px;
+    font-weight: 200;
+    margin-bottom: 0;
+}
+
+
+/* SCOREBOARD COMPONENT --------------------------------------------------------------------------- */
+
+.scoreboard-component {}
+.scoreboard-component .title {}
+
+.scoreboard-component ,group-list {}
+.scoreboard-component .group-list .group {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 20px;
+    min-width: 48%;
+    flex: 0 0 48%;
+}
+.scoreboard-component .group-list .group:nth-child(odd) {
+    margin-left: auto;
+}
+.scoreboard-component .group-list .group.group-dummy {
+    display: none;
+}
+
+.scoreboard-component .form-group-details {
+    margin: 0 0 50px;
+}
+.scoreboard-component .form-group-details input[type="text"] {
+    text-align: center;
+    font-size: 2em;
+}
+
+.scoreboard-component .group-header {}
+.scoreboard-component .group-header .group-header-item {
+    flex: 1;
+    text-align: left;
+    margin-right: 20px;
+}
+.scoreboard-component .group-header .group-header-item:last-of-type {
+    margin-right: 0;
+}
+.scoreboard-component .group-header .score-titles {
+    flex: 0 0 220px;
+}
+.scoreboard-component .group-header .score-titles .score-title {
+    margin: 0 3px 0 0;
+}
+.scoreboard-component .group-header .score-titles .score-title:last-child {
+    margin-right: 0;
+    width: 18px;
+}
+.scoreboard-component .team-list {}
+.scoreboard-component .team-list .team {}
+.scoreboard-component .team-list .team.team-dummy {
+    display: none;
+}
+.scoreboard-component .team-list .team .team-name {
+    flex: 1;
+    text-align: left;
+    margin-right: 20px;
+}
+.scoreboard-component .team-list .team .team-name .team-move {
+    cursor: move;
+    cursor: grab;
+}
+.scoreboard-component .team-list .team .team-name .team-move:active {
+    cursor: grabbing;
+}
+.scoreboard-component .team-list .team .team-score {
+    flex: 0 0 220px;
+}
+.scoreboard-component .team-list .team .team-score .score-form {}
+.scoreboard-component .team-list .team .team-score .score-form input[type='number'] {
+    appearance: textfield;
+    margin: 0 3px 0 0;
+    padding: 3px;
+    text-align: center;
+}
+.scoreboard-component .team-list .team .team-score .score-form input[type='number']:last-child {
+    margin-right: 0;
+}
+.scoreboard-component .team-list .team .team-score .score-form input[type='number']::-webkit-inner-spin-button,
+.scoreboard-component .team-list .team .team-score .score-form input[type='number']::-webkit-outer-spin-button,
+.scoreboard-component .team-list .team .team-score .score-form input[type='number']:hover::-webkit-inner-spin-button,
+.scoreboard-component .team-list .team .team-score .score-form input[type='number']:hover::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.scoreboard-component .btn-team-remove {
+    color: #ddd;
+    padding-left: 0;
+    padding-right: 0;
+}
+.scoreboard-component .btn-team-remove:hover {
+    color: #ff0000;
+}
+
+/* /SCOREBOARD COMPONENT -------------------------------------------------------------------------- */
+
+/** SCOREBOARD ROUNDS COMPONENT ------------------------------------------------------------------- */
+.rounds-component {}
+.rounds-component .round-list {}
+.rounds-component .round-list .round-form.round-form-dummy {
+    display: none;
+}
+.rounds-component .round-list .round-form {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 30px;
+}
+.rounds-component .round-list .round-form input[name="round[name]"] {
+    text-align: center;
+    font-size: 2em;
+}
+.rounds-component .round-list .round-form . {}
+.rounds-component .round-list .round-form .round-teams {}
+.rounds-component .round-list .round-form .round-teams .round-teams-1{}
+.rounds-component .round-list .round-form .round-teams .round-teams-2{}
+.rounds-component .round-list .round-form .round-teams h3 {
+    font-size: 1em;
+}
+.rounds-component .round-list .round-form .round-teams .team-list {}
+.rounds-component .round-list .round-form .round-teams .team-list .team {
+    position: relative;
+}
+.rounds-component .round-list .round-form .round-teams .round-teams-1 .team-list .team {
+    padding: 0 0 0 30px;
+}
+.rounds-component .round-list .round-form .round-teams .round-teams-2 .team-list .team {
+    padding: 0 30px 0 0;
+}
+.rounds-component .round-list .round-form .round-teams .team-list .team.team-dummy {
+    display: none;
+}
+.rounds-component .round-list .round-form .round-teams .team-list .team input {
+    text-align: center;
+}
+.rounds-component .round-list .round-form .round-teams .btn-team-remove {
+    color: #ddd;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
+    padding: 0;
+}
+.rounds-component .round-list .round-form .round-teams .team-list .team .btn-team-remove:hover {
+    color: #ff0000;
+}
+.rounds-component .round-list .round-form {}
+.rounds-component .round-list .round-form {}
+/** /SCOREBOARD ROUNDS COMPONENT ------------------------------------------------------------------ */
+
+/* GALLERY COMPONENT ------------------------------------------------------------------------------ */
+
+.gallery-component {}
+.gallery-component .gallery-upload {
+    margin: 20px 0;
+}
+.gallery-component .gallery .gallery-list {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.gallery-component .gallery .gallery-list .gallery-item {
+    position: relative;
+    flex: 0 0 25%;
+    padding: 5px;
+    max-height: 400px;
+}
+.gallery-component .gallery .gallery-list .gallery-item img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+.gallery-component .gallery .gallery-list .gallery-item .delete {
+    display: none;
+    position: absolute;
+    background: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaWQ9Imljb25zIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAzMiAzMjsiIHZlcnNpb249IjEuMCIgdmlld0JveD0iMCAwIDMyIDMyIiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsOm5vbmU7c3Ryb2tlOiMxNTI3MzA7c3Ryb2tlLXdpZHRoOjI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7fQo8L3N0eWxlPjxyZWN0IGNsYXNzPSJzdDAiIGhlaWdodD0iMjIiIGlkPSJYTUxJRF8xNF8iIHdpZHRoPSIxNiIgeD0iOCIgeT0iNyIvPjxsaW5lIGNsYXNzPSJzdDAiIGlkPSJYTUxJRF80XyIgeDE9IjE2IiB4Mj0iMTYiIHkxPSIxMCIgeTI9IjI2Ii8+PGxpbmUgY2xhc3M9InN0MCIgaWQ9IlhNTElEXzExOF8iIHgxPSIyMCIgeDI9IjIwIiB5MT0iMTAiIHkyPSIyNiIvPjxsaW5lIGNsYXNzPSJzdDAiIGlkPSJYTUxJRF8zXyIgeDE9IjEyIiB4Mj0iMTIiIHkxPSIxMCIgeTI9IjI2Ii8+PGxpbmUgY2xhc3M9InN0MCIgaWQ9IlhNTElEXzVfIiB4MT0iNSIgeDI9IjI3IiB5MT0iNyIgeTI9IjciLz48cmVjdCBjbGFzcz0ic3QwIiBoZWlnaHQ9IjQiIGlkPSJYTUxJRF82XyIgd2lkdGg9IjYiIHg9IjEzIiB5PSIzIi8+PGcgaWQ9IlhNTElEXzM4Nl8iLz48L3N2Zz4=') no-repeat center center #fff;
+    background-size: cover;
+    width: 20px;
+    height: 20px;
+    z-index: 2;
+    top: 10px;
+    right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.gallery-component .gallery .gallery-list .gallery-item:hover img {
+    filter: brightness(70%);
+}
+.gallery-component .gallery .gallery-list .gallery-item:hover .delete {
+    display: block;
+}
+
+/* /GALLERY COMPONENT ----------------------------------------------------------------------------- */

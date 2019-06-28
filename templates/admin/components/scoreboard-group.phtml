@@ -1,0 +1,67 @@
+<div class="scoreboard-component-groups" data-type="<?php echo $type; ?>">
+    <div class="row group-list">
+        <div class="col-6 col-md-6 col-sm-12 group group-dummy">
+            <form action="/api/admin/group" class="form-group-details">
+                <input type="text" class="form-control" name="group[name]" placeholder="GRUPO">
+                <input type="hidden" name="group[id]">
+            </form>
+            <div class="d-flex group-header">
+                <div class="group-header-item">
+                    <h5>Time</h5>
+                </div>
+                <div class="d-flex justify-content-end group-header-item score-titles">
+                    <h5 class="flex-fill text-center score-title">V</h5>
+                    <h5 class="flex-fill text-center score-title">E</h5>
+                    <h5 class="flex-fill text-center score-title">D</h5>
+                    <h5 class="flex-fill text-center score-title">P</h5>
+                    <div class="text-center score-title"></div>
+                </div>
+            </div>
+            <div class="team-list">
+                <div class="team team-dummy">
+                    <form action="/api/admin/team" class="d-flex form-team">
+                        <div class="team-name">
+                            <div class="form-group d-flex align-items-center">
+                                <span class="oi oi-move team-move"></span>
+                                <input type="text" name="team[name]" class="form-control" value="">
+                            </div>
+                        </div>
+                        <div class="team-score">
+                            <div class="form-inline score-form">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="team[wins]">
+                                    <input type="number" class="form-control" name="team[draws]">
+                                    <input type="number" class="form-control" name="team[defeats]">
+                                    <input type="number" class="form-control" name="team[points]">
+                                    <a href="#" class="btn btn-link btn-team-remove" title="Remover Time"><span class="oi oi-delete"></span></a>
+                                </div>
+
+                            </div>
+                        </div>
+                        <input type="hidden" name="team[index]" value="">
+                    </form>
+                </div>
+            </div>
+            <div class="d-flex">
+                <a href="#" class="btn btn btn-dark btn-add-team">Adicionar Time</a>
+                <a href="#" class="btn btn btn-danger ml-auto btn-remove-group">Remover Grupo</a>
+            </div>
+        </div>
+    </div>
+
+
+    <hr/>
+
+    <form action="/api/admin/group" class="form-add-group">
+        <input type="hidden" name="<?php echo $csrf['name'][0]; ?>" value="<?php echo $csrf['name'][1]; ?>">
+        <input type="hidden" name="<?php echo $csrf['value'][0]; ?>" value="<?php echo $csrf['value'][1]; ?>">
+
+        <h3 class="text-left">Adicionar Grupo</h3>
+        <div class="form-inline">
+            <div class="form-group">
+                <input type="text" class="form-control" name="group[name]" placeholder="GRUPO">
+            </div>
+            <button type="submit" class="btn btn-primary">Adicionar</button>
+        </div>
+    </form>
+</div>

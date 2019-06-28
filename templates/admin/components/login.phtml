@@ -1,0 +1,16 @@
+<div class="login-component">
+    <form action="/api/admin/login" method="post">
+        <input type="hidden" name="<?php echo $csrf['name'][0]; ?>" value="<?php echo $csrf['name'][1]; ?>">
+        <input type="hidden" name="<?php echo $csrf['value'][0]; ?>" value="<?php echo $csrf['value'][1]; ?>">
+
+        <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" class="form-control" id="login-email" name="email" value="root@localhost">
+        </div>
+        <div class="form-group">
+            <label for="login-password">Senha</label>
+            <input type="password" class="form-control" id="login-password" name="password" value="123456">
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>

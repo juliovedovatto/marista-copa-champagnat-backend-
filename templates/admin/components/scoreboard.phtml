@@ -1,0 +1,21 @@
+<div class="scoreboard-component">
+    <h2 class="title">Tabela</h2>
+
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" data-toggle="tab" href="#masc" role="tab" aria-controls="home" aria-selected="true">Masculino</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#mix" role="tab" aria-controls="profile" aria-selected="false">Misto</a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <div id="masc" class="tab-pane fade show active p-4 border border-top-0" role="tabpanel" aria-labelledby="profile-tab">
+        <?php $this->protectedIncludeScope($this->templatePath . '/components/scoreboard-group.phtml', [ 'csrf' => $csrf, 'type' => 'masc' ]); ?>
+    </div>
+    <div id="mix" class="tab-pane fade p-4 border border-top-0" role="tabpanel" aria-labelledby="profile-tab">
+        <?php $this->protectedIncludeScope($this->templatePath . '/components/scoreboard-group.phtml', [ 'csrf' => $csrf, 'type' => 'mix' ]); ?>
+    </div>
+  </div>
+</div>

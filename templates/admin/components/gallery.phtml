@@ -1,0 +1,15 @@
+<div class="gallery-component">
+    <h2>Galeria</h2>
+    <form action="/api/admin/gallery/upload" class="gallery-upload" method="post">
+        <input type="hidden" name="<?php echo $csrf['name'][0]; ?>" value="<?php echo $csrf['name'][1]; ?>">
+        <input type="hidden" name="<?php echo $csrf['value'][0]; ?>" value="<?php echo $csrf['value'][1]; ?>">
+    </form>
+    <div class="alert alert-info">
+        <small>Formatmos permitidos: JPG, JPEG E PNG. Tamanho máximo permitido: <?php echo ini_get('upload_max_filesize'); ?> por imagem.</small>
+    </div>
+
+    <div class="gallery">
+        <ul class="gallery-list">
+        </ul>
+    </div>
+</div>

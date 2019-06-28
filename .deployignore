@@ -1,0 +1,14 @@
+.deployignore
+./php.ini
+.gitignore
+./composer.json
+./composer.lock
+./phpunit.xml
+./README.md
+./logs
+./data
+./public/media
+./tests
+.idea
+.DS_Store
+._.DS_Store

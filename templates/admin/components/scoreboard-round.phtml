@@ -1,0 +1,65 @@
+<div class="scoreboard-rounds-component" data-type="<?php echo $type; ?>">
+    <div class="round-list">
+        <form action="/api/admin/round" class="round-form round-form-dummy">
+            <input type="hidden" name="round[id]" />
+            <input type="hidden" name="<?php echo $csrf['name'][0]; ?>" value="<?php echo $csrf['name'][1]; ?>">
+            <input type="hidden" name="<?php echo $csrf['value'][0]; ?>" value="<?php echo $csrf['value'][1]; ?>">
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="round[name]" placeholder="Etapa">
+                    </div>
+                </div>
+                <div class="col-12 round-teams">
+                    <div class="row">
+                        <div class="col-5 round-teams-1">
+                            <h3>CHAVE 1</h3>
+
+                            <div class="team-list">
+                                <div class="team team-dummy">
+                                    <div class="form-group">
+                                        <input type="text" name="round[group][][team][]" class="form-control" placeholder="TIME" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2 d-flex align-items-center justify-content-center">
+                            <div class="versus">X</div>
+                        </div>
+                        <div class="col-5 round-teams-2">
+                            <h3>CHAVE 2</h3>
+
+                            <div class="team-list">
+                                <div class="team team-dummy">
+                                    <div class="form-group">
+                                        <input type="text" name="round[group][][team][]" class="form-control" placeholder="TIME" disabled="disabled">
+                                    </div>
+                                    <a href="#" class="btn btn-link btn-team-remove" title="Remover Time"><span class="oi oi-delete"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <a href="#" class="btn btn btn-dark btn-add-team">Adicionar Times</a>
+                    <a href="#" class="btn btn btn-danger btn-delete-round">Excluir Etapa</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <hr />
+    <form action="/api/admin/round" class="form-add-round">
+        <input type="hidden" name="<?php echo $csrf['name'][0]; ?>" value="<?php echo $csrf['name'][1]; ?>">
+        <input type="hidden" name="<?php echo $csrf['value'][0]; ?>" value="<?php echo $csrf['value'][1]; ?>">
+
+        <h3 class="text-left">Adicionar Etapa</h3>
+        <div class="form-inline">
+            <div class="form-group">
+                <input type="text" class="form-control" name="round[name]" placeholder="Etapa">
+            </div>
+            <button type="submit" class="btn btn-primary">Adicionar</button>
+        </div>
+    </form>
+</div>
