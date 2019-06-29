@@ -53,12 +53,19 @@ return function (App $app) {
         return $response;
     });
 
-    // Session Middleware
-    $app->add(new Session([
-        'name' => $settings['session']['name'],
-        'autorefresh' => true,
-        'lifetime' => $settings['session']['lifetime']
-    ]));
+    $app->add(function (Request $request, Response $response, $next) use ($container, $settings) {
+        $csrf_name = $this->csrf->getTokenNameKey();
+        $csrf_value = $this->csrf->getTokenValueKey();
+        $name = $request->getAttribute($this->csrf->getTokenNameKey());
+        $value = $request->getAttribute($csrf_value);
+
+        $container->get('renderer')->addAttribute('apiUrl', $this->helpers->buildAbsoluteUrl($request, '/api'));
+        $container->get('renderer')->addAttribute('siteUrl', $this->helpers->buildAbsoluteUrl($request));
+        $container->get('renderer')->addAttribute('helpers', $this->helpers);
+        $container->get('renderer')->addAttribute('isUserLoggedIn', $this->session->id() && $this->session->exists('user'));
+
+        return $next($request, $response);
+    });
 
     $app->add(function (Request $request, Response $response, $next) use ($container, $settings) {
         $csrf_name = $this->csrf->getTokenNameKey();
@@ -69,6 +76,13 @@ return function (App $app) {
         $container->get('renderer')->addAttribute('csrf', [ 'name' => [ $csrf_name, $name ], 'value' => [ $csrf_value, $value ] ]);
 
         return $next($request, $response);
-    });
+    })->add($container->get('csrf'));
+
+    // Session Middleware
+    $app->add(new Session([
+        'name' => $settings['session']['name'],
+        'autorefresh' => true,
+        'lifetime' => $settings['session']['lifetime']
+    ]));
 
 };
