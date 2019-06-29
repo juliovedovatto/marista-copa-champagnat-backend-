@@ -444,12 +444,23 @@
 
             var $form = $(this);
 
+            $component.find('.alert-danger').remove();
+            $form.find(':submit').prop('disabled', true);
+
             _apiCall($form.attr('action'), $form.serialize(), 'POST').then(function (response) {
                 if (!response || !response.success) {
+                    if (response && !response.success) {
+
+                    }
+
+                    $component.append('<div class="alert alert-danger">Não foi possível realizar login. Usuário/Senha não conferem.</div>');
+
                     return false;
                 }
 
                 window.location = response.data.redirect;
+            }).always(function () {
+                $form.find(':submit').prop('disabled', false);
             });
 
             return false;

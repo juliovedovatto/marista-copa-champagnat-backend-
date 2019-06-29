@@ -16,20 +16,24 @@
     <link href="/assets/css/admin.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<div class="container">
-    <header class="row">
-        <div class="col-10">
-            <h1>Copa Champagnat - Admin</h1>
-        </div>
-        <div class="col-2">
-          <a href="<?php echo $helpers->pathJoin($siteUrl, '/admin/logout'); ?>">Logout</a>
-        </div>
-    </header>
-    <div class="row">
-        <main class="col">
-            <?php echo $content; ?>
-        </main>
-    </div>
+<div id="app" class="container-fluid d-flex align-items-center">
+  <div class="container rounded">
+      <header class="row">
+          <div class="col-10">
+              <h1>Copa Champagnat - Admin</h1>
+          </div>
+          <div class="col-2">
+            <?php if ($isUserLoggedIn) : ?>
+            <a href="<?php echo $helpers->pathJoin($siteUrl, '/admin/logout'); ?>">Logout</a>
+            <?php endif; ?>
+          </div>
+      </header>
+      <div class="row">
+          <main class="col">
+              <?php echo $content; ?>
+          </main>
+      </div>
+  </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>

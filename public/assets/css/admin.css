@@ -1,9 +1,10 @@
+html, body {
+    height: 100%;
+}
+
 body {
-    margin: 50px 0 0 0;
-    padding: 0;
-    width: 100%;
+    background: #13b9c5;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    text-align: center;
     color: #aaa;
     font-size: 18px;
 }
@@ -22,6 +23,25 @@ header h1 {
     padding-bottom: 40px;
 }
 
+#app {
+    min-height: 100%;
+}
+
+.container {
+    text-align: center;
+    background: #fff;
+}
+
+
+/* LOGIN COMPONENT -------------------------------------------------------------------------------- */
+
+.login-component {}
+.login-component form {
+    margin: 30px auto;
+    width: 500px;
+}
+
+/* /LOGIN COMPONENT ------------------------------------------------------------------------------- */
 
 /* SCOREBOARD COMPONENT --------------------------------------------------------------------------- */
 

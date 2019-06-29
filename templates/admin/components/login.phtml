@@ -3,13 +3,17 @@
         <input type="hidden" name="<?php echo $csrf['name'][0]; ?>" value="<?php echo $csrf['name'][1]; ?>">
         <input type="hidden" name="<?php echo $csrf['value'][0]; ?>" value="<?php echo $csrf['value'][1]; ?>">
 
-        <div class="form-group">
-            <label for="login-email">Email</label>
-            <input type="email" class="form-control" id="login-email" name="email" value="root@localhost">
+        <div class="form-group row">
+            <label for="login-email" class="col-sm-2 col-form-label">Email</label>
+            <div class="col-sm-10">
+              <input type="email" class="form-control" id="login-email" name="email" value="">
+            </div>
         </div>
-        <div class="form-group">
-            <label for="login-password">Senha</label>
-            <input type="password" class="form-control" id="login-password" name="password" value="123456">
+        <div class="form-group row">
+          <label for="login-password" class="col-sm-2 col-form-label">Senha</label>
+          <div class="col-sm-10">
+            <input type="password" class="form-control" id="login-password" name="password" value="">
+          </div>
         </div>
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
