@@ -691,7 +691,7 @@ return function (App $app) {
         /**
          * Admin Dashboard Route
          */
-        $app->get('/', function (Request $request, Response $response, array $args) use ($container) {
+        $app->get('[/]', function (Request $request, Response $response, array $args) use ($container) {
             $csrf_name = $this->csrf->getTokenNameKey();
             $csrf_value = $this->csrf->getTokenValueKey();
             $name = $request->getAttribute($this->csrf->getTokenNameKey());
@@ -728,12 +728,33 @@ return function (App $app) {
 
 //  /ADMIN ------------------------------------------------------------------------------------------------------------
 
+    $app->get('/install', function (Request $request, Response $response, array $args) use ($container) {
+        $db = $this->db->__invoke('settings');
+
+        /** @var $db \SleekDB\SleekDB **/
+        $result = $db->where('installed', '=', '1')->fetch();
+        $install = count($result) > 0;
+
+        if (!$install) {
+            /** @var $dbUser \SleekDB\SleekDB **/
+            $dbUser = $this->db->__invoke('users');
+
+            $result = $dbUser->insert([
+                'name' => 'Backend',
+                'email' => 'ti@konnng.com',
+                'user' => 'backend',
+                'password' => password_hash('GLrIhUviKcCGE1/8gKNuKHTtvgLk8trR', PASSWORD_BCRYPT,  [ 'cost' => 12 ]),
+            ]);
+
+            $install = $result && $db->insert(['installed' => '1', 'date' => time()]);
+        }
+
+        $response->write($install ? 'OK' : 'ERROR');
+    });
 
     $app->get('/[{name}]', function (Request $request, Response $response, array $args) use ($container) {
-        // Sample log message
-        $container->get('logger')->info("Slim-Skeleton '/' route");
-
-        // Render index view
-        return $container->get('renderer')->render($response, 'index.phtml', $args);
+        $response->withStatus(404)
+            ->withHeader('Content-Type', 'text/html')
+            ->write('<h1>404 - Page not found</h1>');
     });
 };
