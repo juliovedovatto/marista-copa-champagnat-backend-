@@ -1,9 +1,10 @@
 <div class="scoreboard-rounds-component" data-type="<?php echo $type; ?>">
     <div class="round-list">
-        <form action="/api/admin/round" class="round-form round-form-dummy">
+        <form action="admin/round" class="round-form round-form-dummy">
             <input type="hidden" name="round[id]" />
             <input type="hidden" name="<?php echo $csrf['name'][0]; ?>" value="<?php echo $csrf['name'][1]; ?>">
             <input type="hidden" name="<?php echo $csrf['value'][0]; ?>" value="<?php echo $csrf['value'][1]; ?>">
+            <input type="hidden" name="round[type]" value="<?php echo $type; ?>">
 
             <div class="row">
                 <div class="col-12">
@@ -50,9 +51,10 @@
         </form>
     </div>
     <hr />
-    <form action="/api/admin/round" class="form-add-round">
+    <form action="admin/round" class="form-add-round">
         <input type="hidden" name="<?php echo $csrf['name'][0]; ?>" value="<?php echo $csrf['name'][1]; ?>">
         <input type="hidden" name="<?php echo $csrf['value'][0]; ?>" value="<?php echo $csrf['value'][1]; ?>">
+        <input type="hidden" name="round[type]" value="<?php echo $type; ?>">
 
         <h3 class="text-left">Adicionar Etapa</h3>
         <div class="form-inline">

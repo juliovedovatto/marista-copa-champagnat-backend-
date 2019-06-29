@@ -50,8 +50,11 @@ return function (App $app) {
             try {
                 /** @var $db \SleekDB\SleekDB **/
                 $db = $this->db->__invoke('scoreboard');
+                $type = $request->getParam('type');
+                if (!$type)
+                    throw new \Exception('invalid type');
 
-                $result = $db->fetch() ?? [];
+                $result = $db->where('type', '=', $type)->fetch() ?? [];
                 $result = array_filter($result, function ($row) {
                    return isset($row['team-list']) && is_array($row['team-list']) && !!count($row['team-list']);
                 });
@@ -97,22 +100,46 @@ return function (App $app) {
 
 
         $app->group('/admin', function () use ($app, $container) {
+
             $app->get('/group', function (Request $request, Response $response, array $args) use ($container) {
                 $apiResponse = [ 'success' => true ];
 
                 try {
+                    $type = $request->getParam('type');
+
                     /** @var $db \SleekDB\SleekDB **/
                     $db = $this->db->__invoke('scoreboard');
+                    if ($type) {
+                        $result = $db->where('type', '=', $type)->fetch() ?? [];
 
-                    $result = $db->fetch();
+                        $data = array_map(function ($row) {
+                            return [
+                                'id' => $row['_id'],
+                                'name' => $row['name'],
+                                'teams' => $row['team-list'],
+                            ];
+                        }, $result);
+                    } else {
+                        $result = $db->fetch();
 
-                    $apiResponse['data'] = array_map(function ($row) {
-                        return [
-                            'id' => $row['_id'],
-                            'name' => $row['name'],
-                            'teams' => $row['team-list'],
-                        ];
-                    }, $result);
+                        $types = array_filter(array_unique(array_map(function ($row) { return $row['type']; }, $result)));
+                        $data = array_combine($types, array_fill(0, count($types), []));
+                        array_walk($data, function (&$item, $key) use ($result) {
+                            $item = array_filter($result, function ($row) use ($key) {
+                                return $row['type'] === $key;
+                            });
+
+                            $item = array_map(function ($row) {
+                                return [
+                                    'id' => $row['_id'],
+                                    'name' => $row['name'],
+                                    'teams' => $row['team-list'],
+                                ];
+                            }, $item);
+                        });
+                    }
+
+                    $apiResponse['data'] = $data;
 
                 } catch (\Exception $err) {
                     $apiResponse['success'] = false;
@@ -136,6 +163,7 @@ return function (App $app) {
                     $data = array_map(function ($item) { return strip_tags(trim($item)); }, $data);
                     $group = $db->insert([
                         'name' => $data['name'],
+                        'type' => $data['type'],
                         'team-list' => []
                     ]);
                     if (!$group)
@@ -331,18 +359,42 @@ return function (App $app) {
                 $apiResponse = [ 'success' => true ];
 
                 try {
+                    $type = $request->getParam('type');
+
                     /** @var $db \SleekDB\SleekDB **/
                     $db = $this->db->__invoke('scoreboard-rounds');
 
-                    $result = $db->fetch() ?? [];
+                    if ($type) {
+                        $result = $db->where('type', '=', $type)->fetch() ?? [];
 
-                    $apiResponse['data'] = array_map(function ($row) {
-                        return [
-                            'id' => $row['_id'],
-                            'name' => $row['name'],
-                            'group' => $row['group']
-                        ];
-                    }, $result);
+                        $data = array_map(function ($row) {
+                            return [
+                                'id' => $row['_id'],
+                                'name' => $row['name'],
+                                'group' => $row['group']
+                            ];
+                        }, $result);
+                    } else {
+                        $result = $db->fetch();
+
+                        $types = array_filter(array_unique(array_map(function ($row) { return $row['type']; }, $result)));
+                        $data = array_combine($types, array_fill(0, count($types), []));
+                        array_walk($data, function (&$item, $key) use ($result) {
+                            $item = array_filter($result, function ($row) use ($key) {
+                                return $row['type'] === $key;
+                            });
+
+                            $item = array_map(function ($row) {
+                                return [
+                                    'id' => $row['_id'],
+                                    'name' => $row['name'],
+                                    'group' => $row['group']
+                                ];
+                            }, $item);
+                        });
+                    }
+
+                    $apiResponse['data'] = $data;
 
                 } catch (\Exception $err) {
                     $apiResponse['success'] = false;
@@ -365,6 +417,7 @@ return function (App $app) {
 
                     $roundData = $db->insert([
                         'name' => $data['name'],
+                        'type' => $data['type'],
                         'group' => []
                     ]);
 
@@ -638,7 +691,7 @@ return function (App $app) {
         /**
          * Admin Dashboard Route
          */
-        $app->get('', function (Request $request, Response $response, array $args) use ($container) {
+        $app->get('/', function (Request $request, Response $response, array $args) use ($container) {
             $csrf_name = $this->csrf->getTokenNameKey();
             $csrf_value = $this->csrf->getTokenValueKey();
             $name = $request->getAttribute($this->csrf->getTokenNameKey());

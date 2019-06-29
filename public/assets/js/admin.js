@@ -15,31 +15,38 @@
             return false;
         }
 
-        $.get('/api/admin/round').then(function (response) {
+
+        _apiCall('admin/round').then(function (response) {
             if (!response || !response.success) {
                 return false;
             }
 
-            $.each(response.data, function (i, item) {
-                var $formRound = $component.find('.round-form-dummy').clone(true).removeClass('round-form-dummy');
+            $.each(response.data, function (type, rows) {
+                var $block = $component.find('#rounds-' + type);
 
-                $formRound.find('input[name="round[name]"]').val(item.name);
-                $formRound.find('input[name="round[id]"]').val(item.id);
+                $.each(rows, function (i, item) {
+                    var $formRound = $block.find('.round-form-dummy').clone(true).removeClass('round-form-dummy');
 
-                $.each(item.group, function (i, row) {
-                    var $list = $formRound.find('.round-teams')
-                    var $list1 = $list.find('.round-teams-1 .team-list');
-                    var $list2 = $list.find('.round-teams-2 .team-list');
-                    var index = $list1.find('.team:not(.team-dummy)').length;
+                    console.log($formRound)
 
-                    var $team1 = $list1.find('.team-dummy').clone(true).removeClass('team-dummy').appendTo($list1);
-                    var $team2 = $list2.find('.team-dummy').clone(true).removeClass('team-dummy').appendTo($list2);
+                    $formRound.find('input[name="round[name]"]').val(item.name);
+                    $formRound.find('input[name="round[id]"]').val(item.id);
 
-                    $team1.find(':input').val(row.team.shift()).removeAttr('disabled').attr('name', $team1.find(':input').attr('name').replace('round[group][]', 'round[group][' + i + ']'));
-                    $team2.find(':input').val(row.team.pop()).removeAttr('disabled').attr('name', $team2.find(':input').attr('name').replace('round[group][]', 'round[group][' + i + ']'));
+                    $.each(item.group, function (i, row) {
+                        var $list = $formRound.find('.round-teams')
+                        var $list1 = $list.find('.round-teams-1 .team-list');
+                        var $list2 = $list.find('.round-teams-2 .team-list');
+                        var index = $list1.find('.team:not(.team-dummy)').length;
+
+                        var $team1 = $list1.find('.team-dummy').clone(true).removeClass('team-dummy').appendTo($list1);
+                        var $team2 = $list2.find('.team-dummy').clone(true).removeClass('team-dummy').appendTo($list2);
+
+                        $team1.find(':input').val(row.team.shift()).removeAttr('disabled').attr('name', $team1.find(':input').attr('name').replace('round[group][]', 'round[group][' + i + ']'));
+                        $team2.find(':input').val(row.team.pop()).removeAttr('disabled').attr('name', $team2.find(':input').attr('name').replace('round[group][]', 'round[group][' + i + ']'));
+                    });
+
+                    $block.find('.round-list').append($formRound);
                 });
-
-                $component.find('.round-list').append($formRound);
             });
         });
 
@@ -70,11 +77,7 @@
                 return false;
             }
 
-            $.ajax({
-                url: $formRound.attr('action'),
-                data: $formRound.serialize(),
-                method: 'DELETE'
-            }).then(function (response) {
+            _apiCall($formRound.attr('action'), $formRound.serialize(), 'DELETE').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
@@ -88,11 +91,7 @@
         $component.on('change propertychange', '.round-form:not(.round-form-dummy) .round-teams .team-list .team:not(.team-dummy) :text', function (e) {
             var $formRound = $(this).closest('.round-form');
 
-            $.ajax({
-                url: $formRound.attr('action'),
-                data: $formRound.serialize(),
-                method: 'PUT'
-            }).then(function (response) {
+            _apiCall($formRound.attr('action'), $formRound.serialize(), 'PUT').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
@@ -120,11 +119,7 @@
             });
 
             $.when(deferred).then(function () {
-                $.ajax({
-                    url: $formRound.attr('action'),
-                    data: $formRound.serialize(),
-                    method: 'PUT'
-                }).then(function (response) {
+                _apiCall($formRound.attr('action'), $formRound.serialize(), 'PUT').then(function (response) {
                     if (!response || !response.success) {
                         return false;
                     }
@@ -137,11 +132,7 @@
         $component.on('change propertychange', '.round-form:not(.round-form-dummy) input[name="round[name]"]', function (e) {
             var $form = $(this).closest('.round-form');
 
-            $.ajax({
-                url: $form.attr('action'),
-                data: $form.serialize(),
-                method: 'PUT'
-            }).then(function (response) {
+            _apiCall($form.attr('action'), $form.serialize(), 'PUT').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
@@ -152,17 +143,19 @@
             e.preventDefault()
 
             var $form = $(this);
-            $.post( $form.attr('action'), $form.serialize()).then(function (response) {
+            var $block = $form.closest('.scoreboard-rounds-component');
+
+            _apiCall($form.attr('action'), $form.serialize(), 'POST').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
 
-                var $formRound = $component.find('.round-form-dummy').clone(true).removeClass('round-form-dummy');
+                var $formRound = $block.find('.round-form-dummy').clone(true).removeClass('round-form-dummy');
 
                 $formRound.find('input[name="round[name]"]').val(response.data.name);
                 $formRound.find('input[name="round[id]"]').val(response.data.id);
 
-                $component.find('.round-list').append($formRound);
+                $block.find('.round-list').append($formRound);
 
                 $form.trigger('reset');
             });
@@ -178,34 +171,39 @@
         }
 
         // list groups
-        $.get('/api/admin/group').then(function (response) {
+        _apiCall('admin/group').then(function (response) {
             if (!response || !response.success) {
                 return false;
             }
 
-            $.each(response.data, function (i, group) {
-                var $group = $component.find('.group-dummy').clone(true).removeClass('group-dummy');
+            $.each(response.data, function (type, rows) {
 
-                $group.find('.form-group-details :text').val(group.name);
-                $group.find('.form-group-details input[type="hidden"]').val(group.id);
+                var $block = $component.find('#' + type);
 
-                var $teams = $.map(group.teams, function (team, i) {
-                    var $team = $group.find('.team-list .team.team-dummy').clone(true);
+                $.each(rows, function (i, group) {
+                    var $group = $block.find('.group-dummy').clone(true).removeClass('group-dummy');
 
-                    $team.find('input[name="team[name]"]').val(team.name);
-                    $team.find('input[name="team[wins]"]').val(team.wins);
-                    $team.find('input[name="team[draws]"]').val(team.draws);
-                    $team.find('input[name="team[defeats]"]').val(team.defeats);
-                    $team.find('input[name="team[points]"]').val(team.points);
-                    $team.find('input[name="team[index]"]').val(i);
+                    $group.find('.form-group-details :text').val(group.name);
+                    $group.find('.form-group-details input[name="group[id]"]').val(group.id);
 
-                    return $team.removeClass('team-dummy');
+                    var $teams = $.map(group.teams, function (team, i) {
+                        var $team = $group.find('.team-list .team.team-dummy').clone(true);
+
+                        $team.find('input[name="team[name]"]').val(team.name);
+                        $team.find('input[name="team[wins]"]').val(team.wins);
+                        $team.find('input[name="team[draws]"]').val(team.draws);
+                        $team.find('input[name="team[defeats]"]').val(team.defeats);
+                        $team.find('input[name="team[points]"]').val(team.points);
+                        $team.find('input[name="team[index]"]').val(i);
+
+                        return $team.removeClass('team-dummy');
+                    });
+
+                    $group.find('.team-list').append($teams);
+                    _buildScoreboardSortable($group);
+
+                    $block.find('.group-list').append($group);
                 });
-
-                $group.find('.team-list').append($teams);
-                _buildScoreboardSortable($group);
-
-                $component.find('.group-list').append($group);
             });
 
             return false;
@@ -216,20 +214,21 @@
             e.preventDefault();
 
             var $form = $(this);
+            var $block = $form.closest('.scoreboard-component-groups');
 
-            $.post($form.attr('action'), $form.serialize()).then(function (response) {
+            _apiCall($form.attr('action'), $form.serialize(), 'POST').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
 
                 var group = response.data;
-                var $group = $component.find('.group-dummy').clone(true).removeClass('group-dummy');
+                var $group = $block.find('.group-dummy').clone(true).removeClass('group-dummy');
 
                 $group.find('.form-group-details :text').val(group.name);
-                $group.find('.form-group-details input[type="hidden"]').val(group.id);
+                $group.find('.form-group-details input[name="group[id]"]').val(group.id);
                 _buildScoreboardSortable($group);
 
-                $component.find('.group-list').append($group);
+                $block.find('.group-list').append($group);
 
                 $form.trigger('reset');
             });
@@ -241,11 +240,7 @@
         $component.on('change propertychange', '.group:not(.group-dummy) .form-group-details :text', function (e) {
             var $form = $(this).closest('form');
 
-            $.ajax({
-                url: $form.attr('action'),
-                data: $form.serialize() + '&' + CSRFRequest.name + '&' + CSRFRequest.value,
-                method: 'PUT'
-            }).then(function (response) {
+            _apiCall($form.attr('action'), $form.serialize(), 'PUT').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
@@ -283,11 +278,7 @@
                 return false;
             }
 
-            $.ajax({
-                type: 'DELETE' ,
-                url: '/api/admin/group',
-                data: 'group=' + group_id + '&' + CSRFRequest.name + '&' + CSRFRequest.value
-            }).then(function (response) {
+            _apiCall('admin/group', 'group=' + group_id, 'DELETE').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
@@ -304,10 +295,7 @@
             var $form = $team.find('.form-team')
             var group_id = $group.find('.form-group-details input[name="group[id]"]').val();
 
-            $.post(
-                $form.attr('action'),
-                $form.serialize() + '&group=' + group_id + '&' + CSRFRequest.name + '&' + CSRFRequest.value
-            ).then(function (response) {
+            _apiCall($form.attr('action'), $form.serialize() + '&group=' + group_id,  'POST').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
@@ -322,11 +310,7 @@
             var $form = $team.find('.form-team')
             var group_id = $group.find('.form-group-details input[name="group[id]"]').val();
 
-            $.ajax({
-                url: $form.attr('action'),
-                data: $form.serialize() + '&group=' + group_id + '&' + CSRFRequest.name + '&' + CSRFRequest.value,
-                method: 'PUT'
-            }).then(function (response) {
+            _apiCall($form.attr('action'), $form.serialize() + '&group=' + group_id, 'PUT').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
@@ -347,11 +331,7 @@
             if ($team.is('.team-new')) {
                 deferred.resolve();
             } else {
-                $.ajax({
-                    type: 'DELETE' ,
-                    url: '/api/admin/team',
-                    data: $form.serialize() + '&group=' + group_id + '&' + CSRFRequest.name + '&' + CSRFRequest.value
-                }).then(function (response) {
+                _apiCall('admin/team', $form.serialize() + '&group=' + group_id, 'DELETE').then(function (response) {
                     if (!response || !response.success) {
                         return false;
                     }
@@ -419,7 +399,7 @@
 
         var $galleryList = $component.find('.gallery .gallery-list');
 
-        $.get('/api/admin/gallery').then(function (response) {
+        _apiCall('admin/gallery').then(function (response) {
             if (!response || !response.success) {
                 return false;
             }
@@ -438,11 +418,7 @@
                 return false;
             }
 
-            $.ajax({
-                type: 'DELETE' ,
-                url: '/api/admin/gallery/delete/' + id,
-                data: CSRFRequest.name + '&' + CSRFRequest.value
-            }).then(function (response) {
+            _apiCall('admin/gallery/delete/' + id, null, 'DELETE').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
@@ -468,7 +444,7 @@
 
             var $form = $(this);
 
-            $.post($form.attr('action'), $form.serialize()).then(function (response) {
+            _apiCall($form.attr('action'), $form.serialize(), 'POST').then(function (response) {
                 if (!response || !response.success) {
                     return false;
                 }
@@ -523,13 +499,10 @@
                     data.teams.push(teamData);
                 });
 
-                var formData = $.extend({}, $.deParam(CSRFRequest.name + '&' + CSRFRequest.value), { group: data });
+                var formData = $.extend({}, _serializeObject(CSRFRequest.name + '&' + CSRFRequest.value), { group: data });
 
-                $.ajax({
-                    url: $form.attr('action'),
-                    data: formData,
-                    method: 'PUT'
-                }).then(function (response) {
+
+                _apiCall($form.attr('action'), formData, 'PUT').then(function (response) {
                     if (!response || !response.success) {
                         return false;
                     }
@@ -548,19 +521,30 @@
 
         return $item;
     }
-    
 
-    $.extend({
-        deParam : function(str) {
-            return $.map(
-                (str || str).replace(/(^\?)/,'').split("&"),
-                function (n){
-                    return n = n.split("="), this[n[0]] = n[1],this
-                }.bind({})
-            )[0];
+    function _apiCall(endpoint, data, type) {
+        var csrf = _serializeObject(CSRFRequest.name + '&' + CSRFRequest.value);
+
+        endpoint = endpoint.replace(/^\/|\/$/g, '');
+        data = data || '';
+        data = data.constructor === String ? _serializeObject(data) : data;
+        type = (type || 'GET').toUpperCase();
+
+        if (type !== 'GET' && !data.csrf_name) {
+            data = $.extend(csrf, data);
         }
 
-    });
+        return $.ajax({
+            url: apiUrl + '/' + endpoint,
+            data: data,
+            type: type
+        });
+    }
 
+    function _serializeObject(query) {
+        return URI.parseQuery(decodeURIComponent(query));
+    }
+
+//  MISC ------------------------------------------------------------------------------------------
 
 })(jQuery);

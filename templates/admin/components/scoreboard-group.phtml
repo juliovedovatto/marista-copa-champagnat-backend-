@@ -1,8 +1,10 @@
 <div class="scoreboard-component-groups" data-type="<?php echo $type; ?>">
     <div class="row group-list">
         <div class="col-6 col-md-6 col-sm-12 group group-dummy">
-            <form action="/api/admin/group" class="form-group-details">
+            <form action="admin/group" class="form-group-details">
                 <input type="text" class="form-control" name="group[name]" placeholder="GRUPO">
+                <input type="hidden" name="group[type]" value="<?php echo $type; ?>">
+
                 <input type="hidden" name="group[id]">
             </form>
             <div class="d-flex group-header">
@@ -19,7 +21,7 @@
             </div>
             <div class="team-list">
                 <div class="team team-dummy">
-                    <form action="/api/admin/team" class="d-flex form-team">
+                    <form action="admin/team" class="d-flex form-team">
                         <div class="team-name">
                             <div class="form-group d-flex align-items-center">
                                 <span class="oi oi-move team-move"></span>
@@ -52,9 +54,10 @@
 
     <hr/>
 
-    <form action="/api/admin/group" class="form-add-group">
+    <form action="admin/group" class="form-add-group">
         <input type="hidden" name="<?php echo $csrf['name'][0]; ?>" value="<?php echo $csrf['name'][1]; ?>">
         <input type="hidden" name="<?php echo $csrf['value'][0]; ?>" value="<?php echo $csrf['value'][1]; ?>">
+        <input type="hidden" name="group[type]" value="<?php echo $type; ?>">
 
         <h3 class="text-left">Adicionar Grupo</h3>
         <div class="form-inline">
