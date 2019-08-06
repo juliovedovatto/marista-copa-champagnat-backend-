@@ -13,7 +13,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" rel="stylesheet" type="text/css" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" crossorigin="anonymous">
 
-    <link href="/assets/css/admin.css" rel="stylesheet" type="text/css">
+    <link href="<?php echo $helpers->pathJoin($siteUrl, 'assets/css/admin.css'); ?>" rel="stylesheet" type="text/css">
 </head>
 <body>
 <div id="app" class="container-fluid d-flex align-items-center">
@@ -42,8 +42,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.1/URI.min.js" crossorigin="anonymous"></script>
+<script src="<?php echo $helpers->pathJoin($siteUrl, 'assets/js/jquery.serialize-object.js'); ?>"></script>
 
-<script src="/assets/js/admin.js"></script>
+<script src="<?php echo $helpers->pathJoin($siteUrl, 'assets/js/admin.js'); ?>"></script>
 <script>
   var siteUrl = '<?php echo $siteUrl; ?>';
   var apiUrl = '<?php echo $apiUrl; ?>';

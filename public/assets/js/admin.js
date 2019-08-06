@@ -7,6 +7,7 @@
         initGalleryComponent();
         initLoginComponent();
         initRoundsComponent();
+        initUserComponent();
     });
 
     function initRoundsComponent() {
@@ -26,8 +27,6 @@
 
                 $.each(rows, function (i, item) {
                     var $formRound = $block.find('.round-form-dummy').clone(true).removeClass('round-form-dummy');
-
-                    console.log($formRound)
 
                     $formRound.find('input[name="round[name]"]').val(item.name);
                     $formRound.find('input[name="round[id]"]').val(item.id);
@@ -272,7 +271,8 @@
             e.preventDefault();
 
             var $group = $(this).closest('.group');
-            var group_id = $group.find('.form-group-details input[type="hidden"]').val();
+            var $form = $group.find('.form-group-details');
+            var group_id = $form.find('input[name="group[id]"]').val();
 
             if (!window.confirm("Deseja excluir este grupo? Todos os dados deste grupo serão removidos.\n\nDeseja continuar?")) {
                 return false;
@@ -447,7 +447,7 @@
             $component.find('.alert-danger').remove();
             $form.find(':submit').prop('disabled', true);
 
-            _apiCall($form.attr('action'), $form.serialize(), 'POST').then(function (response) {
+            _apiCall($form.attr('action'), $form.serializeObject(), 'POST').then(function (response) {
                 if (!response || !response.success) {
                     if (response && !response.success) {
 
@@ -465,6 +465,82 @@
 
             return false;
         });
+    }
+
+    function initUserComponent() {
+        var $component = $('.user-component');
+
+        if (!$component.length) {
+            return false;
+        }
+
+        _apiCall('admin/user').then(function (response) {
+            var $list = $component.find('.user-list-component .user-list');
+
+            $list.find('tbody tr:not(.empty)').remove();
+
+            if (response && !response.success) {
+                $list.find('.empty').show().text('Erro ao listar usuários');
+                return false;
+            }
+
+            $list.find('.empty').hide();
+
+
+            _buildComponentUserList(response.data);
+        });
+
+        $component.find('.form-user-add').on('submit', function (e) {
+            e.preventDefault();
+
+            var $form = $(this);
+
+            if ($form.data('loading')) {
+                return false;
+            }
+
+            $component.find('.user-add-component .alert-danger').remove();
+            $form.data('loading', true).find(':button').prop('disabled', true);
+
+            _apiCall($form.attr('action'), $form.serializeObject(), 'POST').then(function (response) {
+                if (response && !response.success) {
+                    $component.find('.user-add-component').append('<div class="alert alert-danger">Não foi possível adicionar novo usuário.</div>');
+                    return false;
+                }
+
+                $form.trigger('reset');
+
+                _buildComponentUserList([ response.data ]);
+
+            }).always(function () {
+                $form.data('loading', false).find(':button').prop('disabled', false);
+            });
+
+            return false;
+        });
+
+        $component.on('click', '.user-list-component .btn-remove-user', function (e) {
+            e.preventDefault();
+
+            var $element = $(this).closest('.user')
+
+            if (!window.confirm("Deseja excluir esta etapa? Todos os dados deste usuário serão removidos.\n\nDeseja continuar?")) {
+                return false;
+            }
+
+            _apiCall('admin/user', { user: { id: $element.data('id') } }, 'DELETE').then(function (response) {
+                if (!response || !response.success) {
+                    if (response && response.errorCode) {
+                        return window.alert(response.error);
+                    }
+                    return false;
+                }
+
+                $element.fadeOut('fast', function () { $element.remove(); });
+            });
+
+            return false;
+        })
     }
 
     function _buildScoreboardSortable(group) {
@@ -535,6 +611,7 @@
 
     function _apiCall(endpoint, data, type) {
         var csrf = _serializeObject(CSRFRequest.name + '&' + CSRFRequest.value);
+        var url = apiUrl;
 
         endpoint = endpoint.replace(/^\/|\/$/g, '');
         data = data || '';
@@ -545,12 +622,33 @@
             data = $.extend(csrf, data);
         }
 
+        url = apiUrl.replace(/\/$/, '');
+        endpoint = endpoint.replace(/^\//, '');
+
         return $.ajax({
-            url: apiUrl + '/' + endpoint,
+            url: url + '/' + endpoint,
             data: data,
             type: type
         });
     }
+
+    function _buildComponentUserList(data) {
+        var $component = $('.user-component .user-list-component .user-list');
+
+        $.each(data, function (i, row) {
+            $('<tr class="user" data-id="' + row.id + '" />').append(
+                '<td>' + row.id + '</td>' +
+                '<td>' + row.user + '</td>' +
+                '<td>' + row.name + '</td>' +
+                '<td>' + row.email + '</td>' +
+                '<td>' +
+                '<a class="btn btn-link" href="' + siteUrl + 'admin/user/edit/' + row.id + '">Editar</a>' +
+                '<a class="btn btn-link btn-remove-user" href="#">Apagar</a>' +
+                '</td>'
+            ).appendTo($component.find('tbody'));
+        });
+    }
+
 
     function _serializeObject(query) {
         return URI.parseQuery(decodeURIComponent(query));

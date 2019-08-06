@@ -28,11 +28,11 @@ return function (App $app) {
                 $result = $db->orderBy('desc', 'date')->fetch() ?? [];
 
                 $helpers = $this->helpers;
-                $apiResponse['data'] = array_map(function ($item) use ($mediaDirUrl, $helpers) {
+                $apiResponse['data'] = array_map(function ($item) use ($mediaDirUrl, $helpers, $request) {
                     return [
                         'name' => $item['name'],
-                        'url' => $helpers->pathJoin($mediaDirUrl, $item['url']),
-                        'thumb_url' => $item['thumb_url'] ? $helpers->pathJoin($mediaDirUrl, $item['thumb_url']) : '',
+                        'url' => $helpers->buildAbsoluteUrl($request, $item['url']),
+                        'thumb_url' => $item['thumb_url'] ? $helpers->buildAbsoluteUrl($request, $item['thumb_url']): '',
                     ];
                 }, $result);
 
@@ -80,8 +80,11 @@ return function (App $app) {
             try {
                 /** @var $db \SleekDB\SleekDB **/
                 $db = $this->db->__invoke('scoreboard-rounds');
+                $type = $request->getParam('type');
+                if (!$type)
+                    throw new \Exception('invalid type');
 
-                $result = $db->fetch() ?? [];
+                $result = $db->where('type', '=', $type)->fetch() ?? [];
 
                 $apiResponse['data'] = array_map(function ($row) {
                     return [
@@ -532,7 +535,7 @@ return function (App $app) {
 
                 $mediaSettings = $container->get('settings')['media'];
                 $mediaDir = $this->helpers->normalizePath($mediaSettings['mediaDir']);
-                $mediaDirUrl = $this->helpers->pathJoin($request->getUri()->getBasePath(), 'media');
+                $mediaDirUrl = '/media';
 
                 try {
                     /** @var $file Slim\Http\UploadedFile */
@@ -587,8 +590,8 @@ return function (App $app) {
 
                     $apiResponse['data'] = [
                         'id' => $result['_id'] ?? 0,
-                        'file' => $fileUrl,
-                        'thumb' => $thumbFileUrl
+                        'file' => $this->helpers->buildAbsoluteUrl($request, $fileUrl),
+                        'thumb' => $this->helpers->buildAbsoluteUrl($request, $thumbFileUrl)
                     ];
                 } catch (\Exception $err) {
                     $apiResponse['success'] = false;
@@ -634,13 +637,15 @@ return function (App $app) {
                 $apiResponse = [ 'success' => true ];
 
                 $email = $request->getParsedBodyParam('email');
-                $password = $request->getParsedBodyParam('password');
+                $password = $request->getParam('password');
 
                 try {
                     if (!$container->get('session')->get('user')) {
                         /** @var $db \SleekDB\SleekDB * */
                         $db = $this->db->__invoke('users');
                         $result = $db->where('email', '=', $email)->fetch() ?? [] ?: [];
+                        if (!count($result))
+                            $result = $db->where('user', '=', strtolower($email))->fetch() ?? [] ?: [];
 
                         $user = array_shift($result) ?? false;
                         if (!$user)
@@ -650,7 +655,7 @@ return function (App $app) {
                         if (!password_verify($password, $user['password']))
                             throw new \Exception('Login failed: user/password mistach.');
 
-                        $container->get('session')->set('user', $user);
+                        $container->get('session')->set('user', [ 'name' => $user['name'], 'email' => $user['email'], 'id' => $user['_id'], 'user' => $user['name'] ]);
                     }
 
                     $apiResponse['data'] = [ 'redirect' => $this->helpers->buildAbsoluteUrl($request, 'admin') ];
@@ -676,6 +681,155 @@ return function (App $app) {
                 } catch (Exception $err) {
                     $apiResponse['success'] = false;
                     $apiResponse['error'] = $err->getMessage();
+                }
+
+                return $response->withJson($apiResponse);
+            })->add($container->get('csrf'));
+
+
+            $app->get('/user', function (Request $request, Response $response, array $args) use ($container) {
+                $apiResponse = [ 'success' => true ];
+
+                try {
+                    $db = $this->db->__invoke('users');
+
+                    $result = $db->fetch();
+
+                    $apiResponse['data'] = array_map(function ($row) {
+                        return [
+                            'id' => $row['_id'],
+                            'name' => $row['name'],
+                            'email' => $row['email'],
+                            'user' => $row['user']
+                        ];
+                    }, $result);
+                } catch (Exception $err) {
+                    $apiResponse['success'] = false;
+                    $apiResponse['error'] = $err->getMessage();
+                }
+
+                return $response->withJson($apiResponse);
+            });
+
+            $app->post('/user', function (Request $request, Response $response, array $args) use ($container) {
+                $apiResponse = [ 'success' => true ];
+
+                try {
+                    /** @var $db \SleekDB\SleekDB **/
+                    $db = $this->db->__invoke('users');
+
+                    $data = $request->getParsedBodyParam('user') ?? false;
+                    if (!$data)
+                        throw new \Exception('Invalid group data');
+
+                    $data = array_map(function ($item) { return strip_tags(trim($item)); }, $data);
+                    $user = $db->insert([
+                        'name' => $data['name'],
+                        'email' => $data['email'],
+                        'user' => strtolower($this->helpers->slugify($data['user'])),
+                        'password' => password_hash($data['password'], PASSWORD_DEFAULT)
+                    ]);
+                    if (!$user)
+                        throw new \Exception('Group not found');
+
+                    $apiResponse['data'] = [
+                        'name' => $user['name'],
+                        'email' => $user['email'],
+                        'user' => $user['user'],
+                        'id' => $user['_id'],
+                    ];
+
+                } catch (\Exception $err) {
+                    $apiResponse['success'] = false;
+                    $apiResponse['error'] = $err->getMessage();
+                }
+
+                return $response->withJson($apiResponse);
+            })->add($container->get('csrf'));
+
+            $app->put('/user', function (Request $request, Response $response, array $args) use ($container) {
+                $apiResponse = [ 'success' => true ];
+
+                try {
+                    /** @var $db \SleekDB\SleekDB **/
+                    $db = $this->db->__invoke('users');
+
+                    $data = $request->getParsedBodyParam('user') ?? false;
+                    if (!$data)
+                        throw new \Exception('Invalid user data');
+
+                    $data = array_map(function ($item) { return strip_tags(trim($item)); }, $data);
+
+                    $user = $db->where('_id', '=',$data['id']) ?? [] ?: [];
+                    if (!count($user))
+                        throw new \Exception('User not found');
+
+                    $user_verify = $db->where('user', '=', $data['user'])->fetch() ?? [] ?: [];
+                    if (count($user_verify))
+                        throw new \Exception('Username already taken.');
+                    $user_verify = $db->where('email', '=', $data['email'])->fetch() ?? [] ?: [];
+                    if (count($user_verify))
+                        throw new \Exception('Email already in use.');
+
+                    $user = $db->insert([
+                        'name' => $data['name'],
+                        'email' => $data['email'],
+                        'user' => $data['user'],
+                        'password' => password_hash($data['password'], PASSWORD_DEFAULT)
+                    ]);
+                    if (!$user)
+                        throw new \Exception('Unknow error while updating user data.');
+
+                    $apiResponse['data'] = [
+                        'name' => $user['name'],
+                        'email' => $user['email'],
+                        'user' => $user['user'],
+                        'id' => $user['id'],
+                    ];
+
+                } catch (\Exception $err) {
+                    $apiResponse['success'] = false;
+                    $apiResponse['error'] = $err->getMessage();
+                }
+
+                return $response->withJson($apiResponse);
+            })->add($container->get('csrf'));
+
+            $app->delete('/user', function (Request $request, Response $response, array $args) use ($container) {
+                $apiResponse = [ 'success' => true ];
+
+                try {
+                    $loggedUser = $container->get('session')->get('user');
+                    $authSettings = $container->get('settings')['auth'];
+                    if (!in_array($loggedUser['id'], $authSettings['adminUsersIDs']))
+                        throw new \Exception('Only admin is allowed to perform this request.');
+
+                    /** @var $db \SleekDB\SleekDB **/
+                    $db = $this->db->__invoke('users');
+
+                    $data = $request->getParsedBodyParam('user') ?? false;
+                    if (!$data)
+                        throw new \Exception('Invalid user data');
+
+                    $data = array_map(function ($item) { return strip_tags(trim($item)); }, $data);
+
+                    $user = current($db->where('_id', '=',$data['id'])->fetch() ?? [] ?: []);
+                    if (!count($user))
+                        throw new \Exception('User not found');
+                    elseif ($loggedUser['id'] == $user['_id'])
+                        throw new \Exception('You can\'t delete yourself', 100);
+                    elseif ($user['_id'] == 1)
+                        throw new \Exception('Operation not allowed');
+
+                    $result = $db->where('_id', '=',$data['id'])->delete();
+                    if (!$result)
+                        throw new \Exception('Unknow error while deleting user.');
+
+
+                } catch (\Exception $err) {
+                    $apiResponse['success'] = false;
+                    $apiResponse['error'] = $err->getMessage();
+                    $apiResponse['errorCode'] = $err->getCode();
                 }
 
                 return $response->withJson($apiResponse);
@@ -714,6 +868,7 @@ return function (App $app) {
             $args['csrf'] = [ 'name' => [ $csrf_name, $name ], 'value' => [ $csrf_value, $value ] ];
             $args['error'] = $this->flash->getMessage('error');
 
+
             return $container->get('renderer')->render($response, 'login.phtml', $args);
         })->add($container->get('csrf'));
 
@@ -722,20 +877,36 @@ return function (App $app) {
          */
         $app->get('/logout', function (Request $request, Response $response, array $args) use ($container) {
             $container->get('session')->delete('user');
-            return $response->withRedirect('/admin/');
+            return $response->withRedirect($this->helpers->buildRelativeUrl($request, 'admin/'));
+        });
+
+        $app->get('/user', function (Request $request, Response $response, array $args) use ($container) {
+            return $container->get('renderer')->render($response, 'user/index.phtml', $args);
         });
     });
 
 //  /ADMIN ------------------------------------------------------------------------------------------------------------
 
     $app->get('/install', function (Request $request, Response $response, array $args) use ($container) {
+        $successMessage = 'Install OK';
         $db = $this->db->__invoke('settings');
 
         /** @var $db \SleekDB\SleekDB **/
         $result = $db->where('installed', '=', '1')->fetch();
-        $install = count($result) > 0;
+        $isInstalled = count($result) > 0;
+        $password = '';
 
-        if (!$install) {
+        if (!$isInstalled) {
+
+            $apiClient = new \GuzzleHttp\Client();
+            $apiRequest = new \GuzzleHttp\Psr7\Request('GET', 'https://www.passwordrandom.com/query?command=password&scheme=rnrnrrrrnrrrrrr!');
+            $apiResponse = $apiClient->send($apiRequest);
+
+            if ($apiResponse->getStatusCode() !== 200)
+                throw new \Exception('Error generating password for this install.');
+
+            $password = (string) $apiResponse->getBody();
+
             /** @var $dbUser \SleekDB\SleekDB **/
             $dbUser = $this->db->__invoke('users');
 
@@ -743,13 +914,15 @@ return function (App $app) {
                 'name' => 'Backend',
                 'email' => 'ti@konnng.com',
                 'user' => 'backend',
-                'password' => password_hash('GLrIhUviKcCGE1/8gKNuKHTtvgLk8trR', PASSWORD_BCRYPT,  [ 'cost' => 12 ]),
+                'password' => password_hash($password, PASSWORD_DEFAULT),
             ]);
+            $isInstalled = $result && $db->insert(['installed' => '1', 'date' => time()]);
+            $password = htmlspecialchars($password);
 
-            $install = $result && $db->insert(['installed' => '1', 'date' => time()]);
+            $successMessage .= " - password: {$password}";
         }
 
-        $response->write($install ? 'OK' : 'ERROR');
+        $response->write($isInstalled ? $successMessage : 'ERROR');
     });
 
     $app->get('/[{name}]', function (Request $request, Response $response, array $args) use ($container) {

@@ -15,6 +15,7 @@
         "php": ">=7.2",
         "bryanjhv/slim-session": "~3.0",
         "cocur/slugify": "^3.2",
+        "guzzlehttp/guzzle": "~6.0",
         "indiehd/filename-sanitizer": "^0.1.0",
         "ircmaxell/password-compat": "^1.0",
         "monolog/monolog": "^1.17",
@@ -46,7 +47,7 @@
     "scripts": {
         "start": "php -S localhost:8080 -t public -c php.ini",
         "start:production": "php -S 0.0.0.0:80 -t public -c php.ini",
-        "build": "tar -X .deployignore -czf build_$(date +'%Y%m%d_%H%M%S').tar.gz --exclude='*.tar.gz' .",
+            "build": "tar -X .deployignore -czf build_$(date +'%Y%m%d_%H%M%S').tar.gz --exclude='*.tar.gz' .",
         "test": "phpunit"
     }
 }

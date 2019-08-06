@@ -3,6 +3,9 @@
 use Slim\App;
 use SleekDB\SleekDB;
 
+if (!class_exists('\CopaChampagnat\Helpers'))
+    require_once __DIR__ . '/helpers.php';
+
 return function (App $app) {
     $container = $app->getContainer();
 
@@ -27,7 +30,7 @@ return function (App $app) {
     // view renderer
     $container['renderer'] = function ($c) {
         $settings = $c->get('settings')['renderer'];
-        $is_admin = preg_match('#^/admin/?#', $c->request->getUri()->getPath());
+        $is_admin = preg_match('#^/?admin/?#', $c->request->getUri()->getPath());
 
         $view = new \Slim\Views\PhpRenderer($settings['template_path'] . (!!$is_admin ? '/admin/' : ''));
         $view->setLayout("layout.phtml");

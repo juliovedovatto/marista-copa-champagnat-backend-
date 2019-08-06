@@ -31,8 +31,10 @@ return function (App $app) {
         $adminPublicRoutes = $settings['auth']['adminPublicRoutes'] ?? [];
 
         $routPath = $request->getUri()->getPath();
+        if (!preg_match('#^/#', $request->getUri()->getPath()))
+            $routPath =  "/{$routPath}";
 
-        if (preg_match('#/admin/?#', $routPath)) {
+        if (preg_match('#^/?admin/?#', $routPath)) {
             $isWhiteListed = $adminPublicRoutes === '*' || in_array($routPath, $adminPublicRoutes);
             $isUserLoggedIn = $this->session->exists('user');
 
@@ -40,7 +42,7 @@ return function (App $app) {
                 if ($this->request->isXhr())
                     return $response->withJson([ 'success' => false, 'error' => 'Unauthorized' ], 401);
 
-                return $response->withRedirect('/admin/login');
+                return $response->withRedirect($this->helpers->buildRelativeUrl($request, 'admin/login'));
             }
         }
 
@@ -80,9 +82,8 @@ return function (App $app) {
 
     // Session Middleware
     $app->add(new Session([
-        'name' => $settings['session']['name'],
-        'autorefresh' => true,
-        'lifetime' => $settings['session']['lifetime']
+//        'name' => $settings['session']['name'],
+        'autorefresh' => false,
+//        'lifetime' => $settings['session']['lifetime']
     ]));
-
 };

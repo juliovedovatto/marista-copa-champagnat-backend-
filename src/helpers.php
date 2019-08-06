@@ -12,7 +12,7 @@ use Spatie\Image\Manipulations;
 class Helpers {
 
     public function slugify($string, $separator = '-') {
-        $slugify = new Slugify();
+        $slugify = new Slugify([ 'rulesets' => ['portuguese-brazil'] ]);
 
         return $slugify->slugify($string,$separator);
     }
@@ -62,9 +62,18 @@ class Helpers {
         $scheme = $uri->getScheme();
         $host = $uri->getHost();
         $port = ((int) $uri->getPort()) ?: 80;
+        $uriPath = str_ireplace($request->getUri()->getPath(), '', $_SERVER['REQUEST_URI']);
 
-        $baseUrl = "{$scheme}://{$host}" . ($port !== 80 ? ":{$port}" : '');
+        $baseUrl = $this->pathJoin("{$scheme}://{$host}" . ($port !== 80 ? ":{$port}" : ''), $uriPath);
 
         return $this->pathJoin($baseUrl, $path);
+    }
+
+    public function buildRelativeUrl(Request $request, $path = '') {
+        $uri = $request->getUri();
+
+        $uriPath = str_ireplace($request->getUri()->getPath(), '', $_SERVER['REQUEST_URI']);
+
+        return $this->pathJoin($uriPath, $path);
     }
 }

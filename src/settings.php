@@ -9,6 +9,10 @@ return [
                 '/admin/login',
                 '/admin/logout',
                 '/api/admin/login',
+                '/api/admin/csrf',
+            ],
+            'adminUsersIDs' => [
+                1
             ]
         ],
         'session' => [
